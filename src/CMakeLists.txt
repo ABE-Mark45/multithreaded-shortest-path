@@ -1,0 +1,8 @@
+add_subdirectory(graph)
+add_subdirectory(processor)
+add_subdirectory(utils)
+add_subdirectory(coordinator)
+add_subdirectory(queue)
+add_subdirectory(batch)
+add_subdirectory(dispatcher)
+add_subdirectory(gen-cpp)

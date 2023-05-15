@@ -1,0 +1,4 @@
+set(DISPATCHER_SOURCES Dispatcher.cpp)
+add_library(Dispatcher STATIC ${DISPATCHER_SOURCES})
+target_link_libraries(Dispatcher PRIVATE Batch Thrift)
+target_include_directories(Dispatcher PRIVATE ${PROJECT_SOURCE_DIR}/src)

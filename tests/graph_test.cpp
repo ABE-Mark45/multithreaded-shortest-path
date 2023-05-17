@@ -5,6 +5,7 @@
 #include "batch/Batch.h"
 #include "coordinator/AllPairsCoordinator.h"
 #include "coordinator/CachedBFSCoordinator.h"
+#include "coordinator/BFSCoordinator.h"
 #include "processor/BFSProcessor.h"
 #include "processor/CachedBFSProcessor.h"
 
@@ -151,7 +152,7 @@ const std::vector<std::vector<graph::DistanceType>> distances{
     }};
 
 const graph::NodeIdType sourceNode = 19;
-};  // namespace
+}  // namespace
 
 TEST(GraphTest, BFSProcessor) {
   graph::Graph graph;
@@ -161,8 +162,8 @@ TEST(GraphTest, BFSProcessor) {
 
   processor::BFSProcessor processor{graph};
 
-  for (auto i = 0; i < graph.getVertexCount(); i++) {
-    for (auto j = 0; j < graph.getVertexCount(); j++) {
+  for (size_t i = 0; i < graph.getVertexCount(); i++) {
+    for (size_t j = 0; j < graph.getVertexCount(); j++) {
       auto actualDistance = processor.calculateDistance(i, j);
       EXPECT_EQ(actualDistance, distances[i][j]);
     }
@@ -177,8 +178,8 @@ TEST(GraphTest, CachedBFSProcessor) {
 
   processor::CachedBFSProcessor processor{graph};
 
-  for (auto i = 0; i < graph.getVertexCount(); i++) {
-    for (auto j = 0; j < graph.getVertexCount(); j++) {
+  for (size_t i = 0; i < graph.getVertexCount(); i++) {
+    for (size_t j = 0; j < graph.getVertexCount(); j++) {
       auto actualDistance = processor.calculateDistance(i, j);
       EXPECT_EQ(actualDistance, distances[i][j]);
     }
@@ -291,7 +292,6 @@ TEST(GraphTest, CachedBFSCoordinatorMultiBatch) {
   }
 }
 
-
 TEST(GraphTest, AllPairsCoordinatorMultiBatch) {
   graph::Graph graph;
   for (const auto [u, v] : edges) {
@@ -304,6 +304,48 @@ TEST(GraphTest, AllPairsCoordinatorMultiBatch) {
   const auto kQueryCount = 1000;
 
   coordinator::AllPairsCoordinator coordinator{graph};
+
+  std::vector<Batch> batches;
+
+  for (size_t i = 0; i < kBatchCount; i++) {
+    Batch batch{graph_rpc::CategoryType::DISTANCE};
+    for (size_t j = 0; j < kQueryCount; j++) {
+      graph_rpc::Query query;
+      query.type = graph_rpc::QueryType::DISTANCE;
+      query.u = rand() % kVertexCount;
+      query.v = rand() % kVertexCount;
+      batch.addQuery(std::move(query));
+    }
+    batches.emplace_back(batch);
+  }
+
+  for (const auto& batch : batches) {
+    coordinator.invalidateCaches();
+    auto result = coordinator.admitBatch(batch);
+
+    ASSERT_EQ(result.size(), batch.getQueriesView().size());
+    ASSERT_EQ(result.size(), kQueryCount);
+
+    for (size_t i = 0; const auto& query : batch.getQueriesView()) {
+      auto u = query.u;
+      auto v = query.v;
+      ASSERT_EQ(result[i++], distances[u][v]);
+    }
+  }
+}
+
+TEST(GraphTest, BFSCoordinatorMultiBatch) {
+  graph::Graph graph;
+  for (const auto [u, v] : edges) {
+    graph.addEdge(u, v);
+  }
+
+  const auto kVertexCount = graph.getVertexCount();
+
+  const auto kBatchCount = 100;
+  const auto kQueryCount = 1000;
+
+  coordinator::BFSCoordinator coordinator{graph};
 
   std::vector<Batch> batches;
 

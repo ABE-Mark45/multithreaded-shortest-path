@@ -14,5 +14,5 @@ using AdjacencyListType = std::vector<std::unordered_set<NodeIdType>>;
 }  // namespace graph
 
 namespace coordinator {
-enum CoordinatorType { ALL_PAIRS, CACHED_BFS };
+enum CoordinatorType { BFS, ALL_PAIRS, CACHED_BFS };
 }

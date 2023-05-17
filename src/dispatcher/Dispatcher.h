@@ -1,6 +1,7 @@
 #pragma once
 #include "batch/Batch.h"
 #include "coordinator/AllPairsCoordinator.h"
+#include "coordinator/BFSCoordinator.h"
 #include "coordinator/CachedBFSCoordinator.h"
 #include "coordinator/ICoordinator.h"
 #include "gen-cpp/graph_types.h"
@@ -28,10 +29,13 @@ class Dispatcher {
             std::make_unique<coordinator::AllPairsCoordinator>(graph_);
         break;
       }
-
       case coordinator::CACHED_BFS: {
         coordinator_ =
             std::make_unique<coordinator::CachedBFSCoordinator>(graph_);
+        break;
+      }
+      case coordinator::BFS: {
+        coordinator_ = std::make_unique<coordinator::BFSCoordinator>(graph_);
         break;
       }
     }

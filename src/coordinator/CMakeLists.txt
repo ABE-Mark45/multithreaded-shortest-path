@@ -1,3 +1,9 @@
+set(BFS_COORDINATOR_SOURCES BFSCoordinator.cpp)
+add_library(BFSCoordinator STATIC ${BFS_COORDINATOR_SOURCES})
+target_link_libraries(BFSCoordinator PRIVATE Thrift Graph BFSProcessor Batch)
+target_include_directories(BFSCoordinator PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+
 set(CACHED_BFS_COORDINATOR_SOURCES CachedBFSCoordinator.cpp)
 add_library(CachedBFSCoordinator STATIC ${CACHED_BFS_COORDINATOR_SOURCES})
 target_link_libraries(CachedBFSCoordinator PRIVATE Thrift Graph CachedBFSProcessor ConcurrentQueue Batch)

@@ -17,12 +17,18 @@ void CachedBFSProcessor::reset() {
 
 graph::DistanceType CachedBFSProcessor::calculateDistance(graph::NodeIdType u,
                                                           graph::NodeIdType v) {
-  if (u == v) {
+  auto uIdxOpt = graph_.getIdx(u);
+  auto vIdxOpt = graph_.getIdx(v);
+  if (!uIdxOpt || !vIdxOpt) {
+    return graph_constants::kInvalidDistance;
+  }
+  auto uIdx = uIdxOpt.value();
+  auto vIdx = vIdxOpt.value();
+
+  if (uIdx == vIdx) {
     return graph_constants::kZeroDistance;
   }
 
-  auto uIdx = graph_.getIdx(u);
-  auto vIdx = graph_.getIdx(v);
   if (cache_.count(to_key(uIdx, vIdx))) {
     return cache_.at(to_key(uIdx, vIdx));
   }

@@ -49,8 +49,14 @@ std::vector<graph::DistanceType> AllPairsCoordinator::admitBatch(
   std::transform(std::execution::par_unseq, batch.getQueriesView().cbegin(),
                  batch.getQueriesView().cend(), results.begin(),
                  [this](const auto& query) {
-                   auto uIdx = graph_.getIdx(query.u);
-                   auto vIdx = graph_.getIdx(query.v);
+                   auto uIdxOpt = graph_.getIdx(query.u);
+                   auto vIdxOpt = graph_.getIdx(query.v);
+                   
+                   if (!uIdxOpt || !vIdxOpt) {
+                    return graph_constants::kInvalidDistance;
+                   }
+                   auto uIdx = uIdxOpt.value();
+                   auto vIdx = vIdxOpt.value();
 
                    if (!index_[uIdx].count(vIdx)) {
                      return graph_constants::kInvalidDistance;

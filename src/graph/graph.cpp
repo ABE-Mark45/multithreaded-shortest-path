@@ -14,9 +14,13 @@ NodeIdType Graph::getIdxAndChange(NodeIdType u) {
   return idx;
 }
 
-NodeIdType Graph::getIdx(NodeIdType u) const {
-  return nodeToIndexMapping_.at(u);
+std::optional<NodeIdType> Graph::getIdx(NodeIdType u) const {
+  if (nodeToIndexMapping_.count(u)) {
+    return nodeToIndexMapping_.at(u);
+  }
+  return std::nullopt;
 }
+
 
 size_t Graph::getVertexCount() const {
   return nodeToIndexMapping_.size();
@@ -26,7 +30,9 @@ void Graph::addEdge(NodeIdType u, NodeIdType v) {
   NodeIdType uIdx = getIdxAndChange(u);
   NodeIdType vIdx = getIdxAndChange(v);
 
-  adjList_[uIdx].insert(vIdx);
+  if (uIdx != vIdx) {
+    adjList_[uIdx].insert(vIdx);
+  }
 }
 
 void Graph::removeEdge(NodeIdType u, NodeIdType v) {

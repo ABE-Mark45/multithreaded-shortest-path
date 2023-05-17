@@ -1,5 +1,6 @@
 #pragma once
 #include <utils/types.h>
+#include <optional>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -12,11 +13,10 @@ class Graph {
   NodeIndexType getIdxAndChange(NodeIdType u);
 
  public:
-  NodeIndexType getIdx(NodeIdType u) const;
+  std::optional<NodeIndexType> getIdx(NodeIdType u) const;
   size_t getVertexCount() const;
   void addEdge(NodeIdType u, NodeIdType v);
   void removeEdge(NodeIdType u, NodeIdType v);
-  const std::unordered_set<NodeIdType>& getNeighbours(
-      NodeIndexType u) const;
+  const std::unordered_set<NodeIdType>& getNeighbours(NodeIndexType u) const;
 };
 }  // namespace graph

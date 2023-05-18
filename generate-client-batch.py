@@ -16,11 +16,14 @@ if __name__ == '__main__':
     with open(args.path, 'w') as f:
         for _ in range(args.batches):
             for _ in range(args.ops):
-                u, v = random.randint(0, nodes-1), random.randint(0, nodes-1)
-
                 if random.random() < read_ratio:
+                    u = random.randint(0, nodes-1)
+                    v = (u + 100) % nodes
                     f.write(f'Q {u} {v}\n')
                 else:
+                    u = random.randint(0, nodes-1)
+                    v = min(0, u + random.randint(-15, 15))
+
                     if random.random() < 0.5:
                         f.write(f'A {u} {v}\n')
                     else:

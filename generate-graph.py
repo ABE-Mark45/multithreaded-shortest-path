@@ -14,7 +14,8 @@ if __name__ == '__main__':
 
     with open(args.path, 'w') as f:
         for _ in range(edge_count):
-            u, v = random.randint(0, nodes-1), random.randint(0, nodes-1)
+            u = random.randint(0, nodes-1)
+            v = max(0, u + random.randint(-15, 15))
             f.write(f'{u} {v}\n')
         f.write('S\n')
                         

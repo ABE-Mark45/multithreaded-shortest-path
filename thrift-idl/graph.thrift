@@ -18,5 +18,5 @@ struct Query {
 }
 
 service GraphService {
-    list<i32> sendQueryBatch(1: list<Query> queryBatch)
+    list<i32> sendQueryBatch(1: string clientName, 2: list<Query> queryBatch)
 }

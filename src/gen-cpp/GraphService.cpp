@@ -35,6 +35,14 @@ uint32_t GraphService_sendQueryBatch_args::read(::apache::thrift::protocol::TPro
     switch (fid)
     {
       case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->clientName);
+          this->__isset.clientName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->queryBatch.clear();
@@ -71,7 +79,11 @@ uint32_t GraphService_sendQueryBatch_args::write(::apache::thrift::protocol::TPr
   ::apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
   xfer += oprot->writeStructBegin("GraphService_sendQueryBatch_args");
 
-  xfer += oprot->writeFieldBegin("queryBatch", ::apache::thrift::protocol::T_LIST, 1);
+  xfer += oprot->writeFieldBegin("clientName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->clientName);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("queryBatch", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->queryBatch.size()));
     std::vector<Query> ::const_iterator _iter8;
@@ -98,7 +110,11 @@ uint32_t GraphService_sendQueryBatch_pargs::write(::apache::thrift::protocol::TP
   ::apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
   xfer += oprot->writeStructBegin("GraphService_sendQueryBatch_pargs");
 
-  xfer += oprot->writeFieldBegin("queryBatch", ::apache::thrift::protocol::T_LIST, 1);
+  xfer += oprot->writeFieldBegin("clientName", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->clientName)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("queryBatch", ::apache::thrift::protocol::T_LIST, 2);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>((*(this->queryBatch)).size()));
     std::vector<Query> ::const_iterator _iter9;
@@ -255,18 +271,19 @@ uint32_t GraphService_sendQueryBatch_presult::read(::apache::thrift::protocol::T
   return xfer;
 }
 
-void GraphServiceClient::sendQueryBatch(std::vector<int32_t> & _return, const std::vector<Query> & queryBatch)
+void GraphServiceClient::sendQueryBatch(std::vector<int32_t> & _return, const std::string& clientName, const std::vector<Query> & queryBatch)
 {
-  send_sendQueryBatch(queryBatch);
+  send_sendQueryBatch(clientName, queryBatch);
   recv_sendQueryBatch(_return);
 }
 
-void GraphServiceClient::send_sendQueryBatch(const std::vector<Query> & queryBatch)
+void GraphServiceClient::send_sendQueryBatch(const std::string& clientName, const std::vector<Query> & queryBatch)
 {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("sendQueryBatch", ::apache::thrift::protocol::T_CALL, cseqid);
 
   GraphService_sendQueryBatch_pargs args;
+  args.clientName = &clientName;
   args.queryBatch = &queryBatch;
   args.write(oprot_);
 
@@ -355,7 +372,7 @@ void GraphServiceProcessor::process_sendQueryBatch(int32_t seqid, ::apache::thri
 
   GraphService_sendQueryBatch_result result;
   try {
-    iface_->sendQueryBatch(result.success, args.queryBatch);
+    iface_->sendQueryBatch(result.success, args.clientName, args.queryBatch);
     result.__isset.success = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != nullptr) {
@@ -393,19 +410,20 @@ void GraphServiceProcessor::process_sendQueryBatch(int32_t seqid, ::apache::thri
   return processor;
 }
 
-void GraphServiceConcurrentClient::sendQueryBatch(std::vector<int32_t> & _return, const std::vector<Query> & queryBatch)
+void GraphServiceConcurrentClient::sendQueryBatch(std::vector<int32_t> & _return, const std::string& clientName, const std::vector<Query> & queryBatch)
 {
-  int32_t seqid = send_sendQueryBatch(queryBatch);
+  int32_t seqid = send_sendQueryBatch(clientName, queryBatch);
   recv_sendQueryBatch(_return, seqid);
 }
 
-int32_t GraphServiceConcurrentClient::send_sendQueryBatch(const std::vector<Query> & queryBatch)
+int32_t GraphServiceConcurrentClient::send_sendQueryBatch(const std::string& clientName, const std::vector<Query> & queryBatch)
 {
   int32_t cseqid = this->sync_->generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(this->sync_.get());
   oprot_->writeMessageBegin("sendQueryBatch", ::apache::thrift::protocol::T_CALL, cseqid);
 
   GraphService_sendQueryBatch_pargs args;
+  args.clientName = &clientName;
   args.queryBatch = &queryBatch;
   args.write(oprot_);
 

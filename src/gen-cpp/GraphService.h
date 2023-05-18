@@ -22,7 +22,7 @@ namespace graph_rpc {
 class GraphServiceIf {
  public:
   virtual ~GraphServiceIf() {}
-  virtual void sendQueryBatch(std::vector<int32_t> & _return, const std::vector<Query> & queryBatch) = 0;
+  virtual void sendQueryBatch(std::vector<int32_t> & _return, const std::string& clientName, const std::vector<Query> & queryBatch) = 0;
 };
 
 class GraphServiceIfFactory {
@@ -52,13 +52,14 @@ class GraphServiceIfSingletonFactory : virtual public GraphServiceIfFactory {
 class GraphServiceNull : virtual public GraphServiceIf {
  public:
   virtual ~GraphServiceNull() {}
-  void sendQueryBatch(std::vector<int32_t> & /* _return */, const std::vector<Query> & /* queryBatch */) override {
+  void sendQueryBatch(std::vector<int32_t> & /* _return */, const std::string& /* clientName */, const std::vector<Query> & /* queryBatch */) override {
     return;
   }
 };
 
 typedef struct _GraphService_sendQueryBatch_args__isset {
-  _GraphService_sendQueryBatch_args__isset() : queryBatch(false) {}
+  _GraphService_sendQueryBatch_args__isset() : clientName(false), queryBatch(false) {}
+  bool clientName :1;
   bool queryBatch :1;
 } _GraphService_sendQueryBatch_args__isset;
 
@@ -67,18 +68,24 @@ class GraphService_sendQueryBatch_args {
 
   GraphService_sendQueryBatch_args(const GraphService_sendQueryBatch_args&);
   GraphService_sendQueryBatch_args& operator=(const GraphService_sendQueryBatch_args&);
-  GraphService_sendQueryBatch_args() noexcept {
+  GraphService_sendQueryBatch_args() noexcept
+                                   : clientName() {
   }
 
   virtual ~GraphService_sendQueryBatch_args() noexcept;
+  std::string clientName;
   std::vector<Query>  queryBatch;
 
   _GraphService_sendQueryBatch_args__isset __isset;
+
+  void __set_clientName(const std::string& val);
 
   void __set_queryBatch(const std::vector<Query> & val);
 
   bool operator == (const GraphService_sendQueryBatch_args & rhs) const
   {
+    if (!(clientName == rhs.clientName))
+      return false;
     if (!(queryBatch == rhs.queryBatch))
       return false;
     return true;
@@ -100,6 +107,7 @@ class GraphService_sendQueryBatch_pargs {
 
 
   virtual ~GraphService_sendQueryBatch_pargs() noexcept;
+  const std::string* clientName;
   const std::vector<Query> * queryBatch;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -186,8 +194,8 @@ class GraphServiceClient : virtual public GraphServiceIf {
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void sendQueryBatch(std::vector<int32_t> & _return, const std::vector<Query> & queryBatch) override;
-  void send_sendQueryBatch(const std::vector<Query> & queryBatch);
+  void sendQueryBatch(std::vector<int32_t> & _return, const std::string& clientName, const std::vector<Query> & queryBatch) override;
+  void send_sendQueryBatch(const std::string& clientName, const std::vector<Query> & queryBatch);
   void recv_sendQueryBatch(std::vector<int32_t> & _return);
  protected:
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
@@ -237,13 +245,13 @@ class GraphServiceMultiface : virtual public GraphServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void sendQueryBatch(std::vector<int32_t> & _return, const std::vector<Query> & queryBatch) override {
+  void sendQueryBatch(std::vector<int32_t> & _return, const std::string& clientName, const std::vector<Query> & queryBatch) override {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->sendQueryBatch(_return, queryBatch);
+      ifaces_[i]->sendQueryBatch(_return, clientName, queryBatch);
     }
-    ifaces_[i]->sendQueryBatch(_return, queryBatch);
+    ifaces_[i]->sendQueryBatch(_return, clientName, queryBatch);
     return;
   }
 
@@ -279,8 +287,8 @@ class GraphServiceConcurrentClient : virtual public GraphServiceIf {
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void sendQueryBatch(std::vector<int32_t> & _return, const std::vector<Query> & queryBatch) override;
-  int32_t send_sendQueryBatch(const std::vector<Query> & queryBatch);
+  void sendQueryBatch(std::vector<int32_t> & _return, const std::string& clientName, const std::vector<Query> & queryBatch) override;
+  int32_t send_sendQueryBatch(const std::string& clientName, const std::vector<Query> & queryBatch);
   void recv_sendQueryBatch(std::vector<int32_t> & _return, const int32_t seqid);
  protected:
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;

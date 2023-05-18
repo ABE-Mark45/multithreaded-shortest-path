@@ -20,7 +20,7 @@ class GraphServiceHandler : virtual public GraphServiceIf {
     // Your initialization goes here
   }
 
-  void sendQueryBatch(std::vector<int32_t> & _return, const std::vector<Query> & queryBatch) {
+  void sendQueryBatch(std::vector<int32_t> & _return, const std::string& clientName, const std::vector<Query> & queryBatch) {
     // Your implementation goes here
     printf("sendQueryBatch\n");
   }

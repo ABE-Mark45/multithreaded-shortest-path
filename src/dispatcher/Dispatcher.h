@@ -6,6 +6,7 @@
 #include "coordinator/ICoordinator.h"
 #include "gen-cpp/graph_types.h"
 #include "graph/graph.h"
+#include "logger/Logger.h"
 #include "utils/types.h"
 
 namespace dispatcher {
@@ -13,6 +14,7 @@ namespace dispatcher {
 class Dispatcher {
  private:
   graph::Graph& graph_;
+  std::shared_ptr<logger::Logger> logger_;
   std::unique_ptr<coordinator::ICoordinator> coordinator_;
   void processMutatingBatch(const Batch& batch);
   void processDistanceBatch(const Batch& batch,
@@ -21,8 +23,9 @@ class Dispatcher {
  public:
   Dispatcher() = delete;
 
-  Dispatcher(graph::Graph& graph, coordinator::CoordinatorType type)
-      : graph_(graph) {
+  Dispatcher(graph::Graph& graph, std::shared_ptr<logger::Logger> logger,
+             coordinator::CoordinatorType type)
+      : graph_(graph), logger_(logger) {
     switch (type) {
       case coordinator::ALL_PAIRS: {
         coordinator_ =

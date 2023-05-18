@@ -12,9 +12,9 @@
 
 class GraphServiceHandler : public graph_rpc::GraphServiceIf {
  private:
+  std::shared_ptr<logger::Logger> logger_;
   graph::Graph graph_;
   dispatcher::Dispatcher dispatcher_;
-  logger::Logger logger_;
 
   void initGraph(const std::string& path) {
     std::ifstream inputStream(path);
@@ -34,16 +34,20 @@ class GraphServiceHandler : public graph_rpc::GraphServiceIf {
   GraphServiceHandler(coordinator::CoordinatorType type,
                       const std::string& inputGraphPath,
                       const std::string& outputLogFile)
-      : dispatcher_(graph_, type), logger_(outputLogFile) {
-    logger_.println("Starting Server");
-    logger_.println("Initializing graph");
+      : logger_(std::make_shared<logger::Logger>(outputLogFile)),
+        graph_(logger_),
+        dispatcher_(graph_, logger_, type) {
+    logger_->println("Starting Server");
+    logger_->println("Initializing graph");
     initGraph(inputGraphPath);
-    logger_.println("Graph initialized successfully");
+    logger_->println("Graph initialized successfully");
   }
 
   void sendQueryBatch(
-      std::vector<graph::DistanceType>& result,
+      std::vector<graph::DistanceType>& result, const std::string& clientName,
       const std::vector<graph_rpc::Query>& queryBatch) override {
+
+    logger_->println("Received batch from client " + clientName);
     dispatcher_.dispatchQueries(queryBatch, result);
   }
 };

@@ -16,6 +16,9 @@ void Dispatcher::processMutatingBatch(const Batch& batch) {
 void Dispatcher::processDistanceBatch(
     const Batch& batch, std::vector<graph::DistanceType>& results) {
   auto partialResults = coordinator_->admitBatch(batch);
+  for (size_t i = 0; const auto& query: batch.getQueriesView()) {
+    logger_->logDistanceQuery(query, partialResults[i++]);
+  }
   results.insert(results.end(), partialResults.cbegin(), partialResults.cend());
 }
 
